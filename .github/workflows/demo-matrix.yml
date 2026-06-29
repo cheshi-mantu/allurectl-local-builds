@@ -1,0 +1,65 @@
+name: demo-testops-cloud-matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      TESTS_TYPE:
+        description: "Select type of tests"
+        required: true
+        type: choice
+        options:
+          - tests/poco
+          - tests/unit-many
+          - tests/unit
+          - tests/attachments
+          - tests/fixtures
+          - tests
+        default: tests/poco
+      PYTEST_THREADS:
+        description: "How many threads, sire?"
+        required: true
+        default: 1
+      ALLURE_JOB_RUN_ID:
+        description: "ALLURE_JOB_RUN_ID service parameter. Leave blank."
+        required: false
+      ALLURE_USERNAME:
+        description: "ALLURE_USERNAME service parameter. Leave blank"
+        required: false
+env:
+  ALLURE_RESULTS: "allure-results"
+  ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
+
+jobs:
+  matrix-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        THREADS: [ONE, TWO, THREE, FOUR]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-xdist allure-pytest 
+      - name: install and configure allurectl
+        uses: allure-framework/setup-allurectl@v1.0.3
+        with:
+          allure-endpoint: ${{ secrets.ALLURE_ENDPOINT_DEMO }}
+          allure-token: ${{ secrets.ALLURE_TOKEN_DEMO }}
+          allure-project-id: ${{ secrets.ALLURE_PROJECT_ID_DEMO }}
+      - name: Run pytest tests
+        run: |
+          if [ "${{ matrix.THREADS }}" != "ONE" ]; then
+            sleep 4
+          fi
+          allurectl watch -- pytest ${{ inputs.TESTS_TYPE }} -n ${{ inputs.PYTEST_THREADS }}
+        env:
+          ALLURE_RESULTS: "allure-results"
+          ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
+          THREADS: ${{ matrix.THREADS }}
+          ALLURE_LAUNCH_TAGS: "${{ inputs.TESTS_TYPE }}"
+  
