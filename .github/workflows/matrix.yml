@@ -1,4 +1,4 @@
-name: matrix
+name: matrix to local instance
 
 on:
   workflow_dispatch:
@@ -9,16 +9,19 @@ on:
         type: choice
         options:
           - tests/poco
-          - tests/unit-many
-          - tests/unit
           - tests/attachments
-          - tests/fixtures
           - tests
         default: tests/poco
-      PYTEST_THREADS:
-        description: "How many threads, sire?"
+      TESTS_SUCCESS:
+        description: "Decide if tests would fail or not"
         required: true
-        default: 1
+        type: choice
+        options:
+          - random
+          - always
+          - broken
+          - never
+        default: always
       ALLURE_JOB_RUN_ID:
         description: "ALLURE_JOB_RUN_ID service parameter. Leave blank."
         required: false
@@ -35,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        THREADS: [ONE, TWO, THREE, FOUR]
+        THREADS: [ONE, TWO]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -44,20 +47,21 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-xdist allure-pytest 
+          pip install pytest allure-pytest 
       - name: install and configure allurectl
         uses: allure-framework/setup-allurectl@v1.0.3
         with:
-          allure-endpoint: ${{ secrets.ALLURE_ENDPOINT_TESTING }}
-          allure-token: ${{ secrets.ALLURE_TOKEN_TESTING }}
-          allure-project-id: 276
-      - name: Run pytest tests
+          allure-endpoint: ${{ secrets.ALLURE_ENDPOINT_LOCAL }}
+          allure-token: ${{ secrets.ALLURE_TOKEN_LOCAL }}
+          allure-project-id: 22
+      - name: This is SPARTAAAAAA
         run: |
           if [ "${{ matrix.THREADS }}" != "ONE" ]; then
             sleep 2
           fi
-          allurectl watch -- pytest ${{ inputs.TESTS_TYPE }} -n ${{ inputs.PYTEST_THREADS }}
+          allurectl watch -- pytest ${{ inputs.TESTS_TYPE }}
         env:
+          TESTS_SUCCESS: "${{ inputs.TESTS_SUCCESS }}"
           ALLURE_RESULTS: "allure-results"
           ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
           THREADS: ${{ matrix.THREADS }}
