@@ -3,6 +3,14 @@ name: matrix to testing
 on:
   workflow_dispatch:
     inputs:
+      VALIDATE_JSON:
+        description: "Validate JSON"
+        required: true
+        type: choice
+        options:
+          - true
+          - false
+        default: false
       TESTS_TYPE:
         description: "Select type of tests"
         required: true
@@ -78,5 +86,6 @@ jobs:
           ALLURE_ENDPOINT: ${{ secrets.ALLURE_ENDPOINT_TESTING }}
           ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN_TESTING }}
           ALLURE_PROJECT_ID: 276
+          ALLURE_VALIDATE_JSON: ${{ inputs.VALIDATE_JSON }}
 
           
