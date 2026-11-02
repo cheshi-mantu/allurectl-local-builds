@@ -1196,7 +1196,7 @@ def test_unit_always_passing_099():
 @allure.label("os","linux")
 @allure.title("Assert a tuple poco 100 001")
 def test_unit_always_passing_100():
-    fail
+    assert "123" == "321"
 
 
 # @allure.feature("load testing test results processing")
