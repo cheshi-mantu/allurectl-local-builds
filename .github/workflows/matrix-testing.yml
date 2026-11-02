@@ -1,6 +1,9 @@
 name: matrix to testing
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       VALIDATE_JSON:
