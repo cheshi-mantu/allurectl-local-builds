@@ -29,8 +29,8 @@ on:
         type: choice
         options:
           - random
-          - always
           - broken
+          - always
           - never
         default: always
       ALLURE_JOB_RUN_ID:
