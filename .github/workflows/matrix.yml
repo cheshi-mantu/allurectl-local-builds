@@ -78,5 +78,6 @@ jobs:
           ALLURE_ENDPOINT: ${{ secrets.ALLURE_ENDPOINT_LOCAL }}
           ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN_LOCAL }}
           ALLURE_PROJECT_ID: 22
+          ALLURE_GIT_FLOW: true
 
           
