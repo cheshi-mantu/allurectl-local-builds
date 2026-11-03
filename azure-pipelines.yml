@@ -1,0 +1,48 @@
+trigger:
+  branches:
+    exclude:
+      - master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: Bash@3
+  displayName: 'Install pytest'
+  inputs:
+    targetType: 'inline'
+    script: |
+      pip install --upgrade pip
+      pip install pytest pytest-xdist allure-pytest
+- task: Bash@3
+  displayName: 'Install allurectl'
+  inputs:
+    targetType: 'inline'
+    script: |
+      curl -L https://github.com/cheshi-mantu/allurectl-local-builds/releases/latest/download/allurectl_linux_amd64 -o ./allurectl
+      chmod +x ./allurectl
+
+- script: |
+    TAGS=$(env | cut -d= -f1 | grep '^ALLURE_' | tr '\n' ',' | sed 's/,$//')
+    echo "##vso[task.setvariable variable=ALLURE_LAUNCH_TAGS]$TAGS"
+  displayName: 'Set ALLURE_LAUNCH_TAGS'
+
+- script: |
+    ./allurectl watch -- pytest $(TESTS_TYPE) || true
+    printenv | grep "ALLURE_"
+    printenv | grep "TEST_"
+    printenv | grep "AZURE_"
+    echo "All variables"
+    printenv
+  displayName: 'running pytest tests'
+  env:
+    ALLURE_ENDPOINT: https://testing.qameta.in
+    ALLURE_PROJECT_ID: 276
+    ALLURE_TOKEN: $(ALLURE_TOKEN)
+    ALLURE_RESULTS: $(ALLURE_RESULTS)
+    ALLURE_LAUNCH_NAME: "$(Build.DefinitionName)-$(Build.BuildNumber)"
+    TEST_BRANCH: $(Build.SourceBranchName)
+    ALLURE_LAUNCH_TAGS: $(ALLURE_LAUNCH_TAGS)
+    AZURE_BROWSER: $(AZURE_BROWSER)
+    AZURE_HOST: $(AZURE_HOST)
+    TESTS_SUCCESS: $(TESTS_SUCCESS)
