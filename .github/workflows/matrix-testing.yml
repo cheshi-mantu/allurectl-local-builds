@@ -1,4 +1,4 @@
-name: matrix to testing
+name: matrix testing
 
 on:
   pull_request:
@@ -6,6 +6,14 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      TESTBED:
+        description: "Select testbed to send results to"
+        required: true
+        type: choice
+        options:
+          - TESTING
+          - LOCAL
+        default: TESTING
       VALIDATE_JSON:
         description: "Validate JSON"
         required: true
@@ -40,6 +48,7 @@ on:
         description: "ALLURE_USERNAME service parameter. Leave blank"
         required: false
 env:
+  TESTBED: ${{ inputs.TESTBED || 'TESTING' }}
   ALLURE_RESULTS: "allure-results"
   ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
 
@@ -86,9 +95,9 @@ jobs:
           THREADS: ${{ matrix.THREADS }}
           ALLURE_LAUNCH_TAGS: "${{ inputs.TESTS_TYPE || 'tests/poco' }}"
           ALLURE_JOB_UID: ${{ steps.allure-job-uid.outputs.result }}
-          ALLURE_ENDPOINT: ${{ secrets.ALLURE_ENDPOINT_TESTING }}
-          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN_TESTING }}
-          ALLURE_PROJECT_ID: 276
+          ALLURE_ENDPOINT: ${{ secrets[format('ALLURE_ENDPOINT_{0}', env.TESTBED)] }}
+          ALLURE_TOKEN: ${{ secrets[format('ALLURE_TOKEN_{0}', env.TESTBED)] }}
+          ALLURE_PROJECT_ID: ${{ fromJSON('{"TESTING":276,"LOCAL":22}')[env.TESTBED] }}
           ALLURE_VALIDATE_JSON: ${{ inputs.VALIDATE_JSON || 'false' }}
           ALLURE_GIT_FLOW: true
 
