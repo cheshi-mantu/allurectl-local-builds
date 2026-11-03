@@ -39,7 +39,7 @@ steps:
     ALLURE_ENDPOINT: https://testing.qameta.in
     ALLURE_PROJECT_ID: 276
     ALLURE_TOKEN: $(ALLURE_TOKEN)
-    ALLURE_RESULTS: $(ALLURE_RESULTS)
+    ALLURE_RESULTS: allure-results
     ALLURE_LAUNCH_NAME: "$(Build.DefinitionName)-$(Build.BuildNumber)"
     TEST_BRANCH: $(Build.SourceBranchName)
     ALLURE_LAUNCH_TAGS: $(ALLURE_LAUNCH_TAGS)
