@@ -81,7 +81,7 @@ jobs:
               run_id: context.runId,
             });
             return `${context.repo.owner}/${context.repo.repo}/actions/workflows/${result.data.workflow_id}`
-      - name: This is SPARTAAAAAA
+      - name: This is SPARTAAAAAAAA
         continue-on-error: true
         run: |
           if [ "${{ matrix.THREADS }}" != "ONE" ]; then
