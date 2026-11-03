@@ -89,7 +89,7 @@ jobs:
           fi
           ./allurectl --log debug watch --validate-json -- pytest ${{ inputs.TESTS_TYPE || 'tests/poco' }}
         env:
-          TESTS_SUCCESS: "${{ inputs.TESTS_SUCCESS || 'always' }}"
+          TESTS_SUCCESS: "${{ inputs.TESTS_SUCCESS || 'random' }}"
           ALLURE_RESULTS: "allure-results"
           ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
           THREADS: ${{ matrix.THREADS }}
