@@ -1190,6 +1190,17 @@ def test_unit_always_passing_099():
     with allure.step("Assert 123 versus 123"):
         assert not _should_fail(), "Failure due to reason ODD"
 
+# @allure.feature("load testing test results processing")
+# @allure.story("un poco de e2e tests to this project")
+# @allure.label("layer","e2e")
+# @allure.label("os","linux")
+# @allure.title("Assert a tuple poco 100 001")
+# def test_unit_always_passing_100():
+#     with allure.step("Assert 123 versus 123"):
+#         assert "hola" == "hello", "Hola is not hello, dudes"
+#     with allure.step("Assert 123 versus 123"):
+#         assert not _should_fail(), "Failure due to reason ODD"
+
 @allure.feature("load testing test results processing")
 @allure.story("un poco de e2e tests to this project")
 @allure.label("layer","e2e")
