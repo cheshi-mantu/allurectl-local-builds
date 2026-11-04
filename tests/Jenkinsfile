@@ -12,6 +12,7 @@ pipeline {
                 script {
                     env.ALLURE_LAUNCH_NAME = "${TESTS_TYPE}: ${JOB_BASE_NAME} - #${BUILD_NUMBER}"
                     env.ALLURE_LAUNCH_TAGS = "allurectl, ${TESTS_TYPE}, ${TESTS_SUCCESS}, ${JENKINS_AGENT}, keep"
+                    env.ALLURE_GIT_FLOW = "true"
                     
                 }
             }
