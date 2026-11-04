@@ -4,17 +4,19 @@ pipeline {
         skipDefaultCheckout(true)
     }
     parameters {
-        string(name: 'TESTS_TYPE', defaultValue: 'tests', description: 'pytest path')
-        string(name: 'TESTS_SUCCESS', defaultValue: 'mixed', description: 'launch tag')
-        string(name: 'JENKINS_AGENT', defaultValue: 'python', description: 'launch tag')
+        string(name: 'TESTS_SUCCESS', defaultValue: 'always', description: 'launch tag')
         string(name: 'ALLURECTL_RELEASE', defaultValue: '2.24.0', description: 'allurectl release tag')
-        string(name: 'PYTHON_THREADS', defaultValue: 'auto', description: 'xdist workers')
+        string(name: 'PYTHON_THREADS', defaultValue: '2', description: 'xdist workers')
         string(name: 'ALLURE_GIT_FLOW', defaultValue: 'true', description: 'enables gitflow')
     }
     environment {
         ALLURE_ENDPOINT = 'https://testing.qameta.in'
         ALLURE_PROJECT_ID = '276'
         ALLURE_RESULTS = 'allure-results'
+        TESTS_SUCCESS = "${params.TESTS_SUCCESS}"
+        ALLURECTL_RELEASE = "${params.ALLURECTL_RELEASE}"
+        PYTHON_THREADS = "${params.PYTHON_THREADS}"
+        ALLURE_GIT_FLOW = "${params.ALLURE_GIT_FLOW}"
     }
     stages {
         stage('Matrix Test') {
@@ -50,6 +52,9 @@ pipeline {
                             curl -L -o ./allurectl https://github.com/cheshi-mantu/allurectl-local-builds/releases/download/${params.ALLURECTL_RELEASE}/\$ALLURECTL_ARCH
                             chmod +x ./allurectl
                             """
+                            script {
+                                env.ALLURECTL_VERSION = sh(script: "./allurectl --version | awk '{print \$NF}'", returnStdout: true).trim()
+                            }
                         }
                     }
                     stage('python deps') {
@@ -70,9 +75,7 @@ pipeline {
                             ]) {
                                 withCredentials([string(credentialsId: 'egorivanov_at_testing', variable: 'ALLURE_TOKEN')]) {
                                     sh '''
-                                    ./allurectl watch -- pytest ${TESTS_TYPE} -n ${PYTHON_THREADS} || true
-
-                                    ./allurectl launch add-issue --current-launch --integration-id 2 --issue-keys AE-5 || true
+                                    ./allurectl watch -- pytest tests/poco -n ${PYTHON_THREADS} || true
                                     '''
                                 }
                             }
