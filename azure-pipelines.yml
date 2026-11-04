@@ -23,6 +23,11 @@ steps:
       chmod +x ./allurectl
 
 - script: |
+    ALLURECTL_VERSION=$(./allurectl --version | awk '{print $NF}')
+    echo "##vso[task.setvariable variable=ALLURECTL_VERSION]$ALLURECTL_VERSION"
+  displayName: 'Set ALLURECTL_VERSION'
+
+- script: |
     TAGS=$(env | cut -d= -f1 | grep '^ALLURE_' | tr '\n' ',' | sed 's/,$//')
     echo "##vso[task.setvariable variable=ALLURE_LAUNCH_TAGS]$TAGS"
   displayName: 'Set ALLURE_LAUNCH_TAGS'
@@ -45,5 +50,6 @@ steps:
     ALLURE_LAUNCH_TAGS: $(ALLURE_LAUNCH_TAGS)
     AZURE_BROWSER: $(AZURE_BROWSER)
     AZURE_HOST: $(AZURE_HOST)
+    ALLURECTL_VERSION: $(ALLURECTL_VERSION)
     TESTS_SUCCESS: $(TESTS_SUCCESS)
     ALLURE_GIT_FLOW: true
