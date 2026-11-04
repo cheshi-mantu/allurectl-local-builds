@@ -70,6 +70,10 @@ jobs:
           pip install pytest allure-pytest
           wget https://github.com/cheshi-mantu/allurectl-local-builds/releases/latest/download/allurectl_linux_amd64 -O ./allurectl
           chmod +x allurectl
+      - name: Set ALLURECTL_VERSION
+        run: |
+          ALLURECTL_VERSION=$(./allurectl --version | awk '{print $NF}')
+          echo "ALLURECTL_VERSION=$ALLURECTL_VERSION" >> "$GITHUB_ENV"
       - uses: actions/github-script@v4
         id: allure-job-uid
         with:
