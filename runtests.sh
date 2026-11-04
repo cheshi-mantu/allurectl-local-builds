@@ -25,3 +25,5 @@ mkdir ${ALLURE_RESULTS}
 sleep 2
 
 allurectl ${COMMAND_USED} -- pytest tests
+
+# header
