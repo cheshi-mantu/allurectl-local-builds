@@ -1,21 +1,18 @@
 pipeline {
     agent none
+    options {
+        skipDefaultCheckout(true)
+    }
     environment {
         ALLURE_ENDPOINT = 'https://testing.qameta.in'
         ALLURE_PROJECT_ID = '276'
         ALLURE_RESULTS = 'allure-results'
+        TESTS_SUCCESS = "always"
+        ALLURECTL_RELEASE = "2.24.0"
+        PYTHON_THREADS = "2"
+        ALLURE_GIT_FLOW = "true"
     }
     stages {
-        stage('allurectl attributes') {
-            agent { label 'python' }
-            steps {
-                script {
-                    env.ALLURE_LAUNCH_NAME = "${TESTS_TYPE}: ${JOB_BASE_NAME} - #${BUILD_NUMBER}"
-                    env.ALLURE_LAUNCH_TAGS = "allurectl, ${TESTS_TYPE}, ${TESTS_SUCCESS}, ${JENKINS_AGENT}, keep"
-                    
-                }
-            }
-        }
         stage('Matrix Test') {
             matrix {
                 agent {
@@ -32,6 +29,11 @@ pipeline {
                     }
                 }
                 stages {
+                    stage('checkout') {
+                        steps {
+                            checkout scm
+                        }
+                    }
                     stage('get allurectl') {
                         steps {
                             sh """
@@ -41,9 +43,12 @@ pipeline {
                             else
                                 ALLURECTL_ARCH="allurectl_linux_amd64"
                             fi
-                            curl -L -o ./allurectl https://github.com/cheshi-mantu/allurectl-local-builds/releases/download/${ALLURECTL_RELEASE}/\$ALLURECTL_ARCH
+                            curl -L -o ./allurectl https://github.com/cheshi-mantu/allurectl-local-builds/releases/download/${params.ALLURECTL_RELEASE}/\$ALLURECTL_ARCH
                             chmod +x ./allurectl
                             """
+                            script {
+                                env.ALLURECTL_VERSION = sh(script: "./allurectl --version | awk '{print \$NF}'", returnStdout: true).trim()
+                            }
                         }
                     }
                     stage('python deps') {
@@ -58,22 +63,17 @@ pipeline {
                                     sleep 3
                                 }
                             }
-                            withCredentials([string(credentialsId: 'egorivanov_at_testing', variable: 'ALLURE_TOKEN')]) {
-                                sh '''
-                                printenv | grep ALLURE_UPLOAD_ || true
-                                ./allurectl watch \
-                                  --size=${ALLURE_SIZE} \
-                                  --interval=${ALLURE_INTERVAL} \
-                                  --upload-rate-window=${ALLURE_UPLOAD_RATE_WINDOW} \
-                                  --upload-max-files-per-window=${ALLURE_UPLOAD_MAX_FILES_PER_WINDOW} \
-                                  --upload-max-requests-per-window=${ALLURE_UPLOAD_MAX_REQUESTS_PER_WINDOW} \
-                                  --concurrency=${ALLURE_CONCURRENCY} \
-                                  --http-limit=256 \
-                                  -- pytest $TESTS_TYPE -n $PYTHON_THREADS || true
-
-                                ./allurectl launch add-issue --current-launch --integration-id 2 --issue-keys AE-5 || true
-                                '''
-}                        }
+                            withEnv([
+                                "ALLURE_LAUNCH_NAME=${params.TESTS_TYPE}: ${env.JOB_NAME} - #${env.BUILD_NUMBER}",
+                                "ALLURE_LAUNCH_TAGS=allurectl, ${params.TESTS_TYPE}, ${params.TESTS_SUCCESS}, ${params.JENKINS_AGENT}, ${env.BRANCH_NAME}, keep"
+                            ]) {
+                                withCredentials([string(credentialsId: 'egorivanov_at_testing', variable: 'ALLURE_TOKEN')]) {
+                                    sh '''
+                                    ./allurectl watch -- pytest tests/poco -n ${PYTHON_THREADS} || true
+                                    '''
+                                }
+                            }
+                        }
                     }
                 }
             }

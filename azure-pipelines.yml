@@ -2,6 +2,18 @@ trigger:
   branches:
     exclude:
       - master
+  paths:
+    exclude:
+      - Jenkinsfile
+
+pr:
+  branches:
+    include:
+      - '*'
+  paths:
+    exclude:
+      - Jenkinsfile
+      - matrix-testing.yml
 
 pool:
   vmImage: ubuntu-latest
