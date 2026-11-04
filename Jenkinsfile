@@ -3,20 +3,14 @@ pipeline {
     options {
         skipDefaultCheckout(true)
     }
-    parameters {
-        string(name: 'TESTS_SUCCESS', defaultValue: 'always', description: 'launch tag')
-        string(name: 'ALLURECTL_RELEASE', defaultValue: '2.24.0', description: 'allurectl release tag')
-        string(name: 'PYTHON_THREADS', defaultValue: '2', description: 'xdist workers')
-        string(name: 'ALLURE_GIT_FLOW', defaultValue: 'true', description: 'enables gitflow')
-    }
     environment {
         ALLURE_ENDPOINT = 'https://testing.qameta.in'
         ALLURE_PROJECT_ID = '276'
         ALLURE_RESULTS = 'allure-results'
-        TESTS_SUCCESS = "${params.TESTS_SUCCESS}"
-        ALLURECTL_RELEASE = "${params.ALLURECTL_RELEASE}"
-        PYTHON_THREADS = "${params.PYTHON_THREADS}"
-        ALLURE_GIT_FLOW = "${params.ALLURE_GIT_FLOW}"
+        TESTS_SUCCESS = "always"
+        ALLURECTL_RELEASE = "2.24.0"
+        PYTHON_THREADS = "2"
+        ALLURE_GIT_FLOW = "true"
     }
     stages {
         stage('Matrix Test') {
