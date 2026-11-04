@@ -9,6 +9,7 @@ pipeline {
         string(name: 'JENKINS_AGENT', defaultValue: 'python', description: 'launch tag')
         string(name: 'ALLURECTL_RELEASE', defaultValue: '2.24.0', description: 'allurectl release tag')
         string(name: 'PYTHON_THREADS', defaultValue: 'auto', description: 'xdist workers')
+        string(name: 'ALLURE_GIT_FLOW', defaultValue: 'true', description: 'enables gitflow')
     }
     environment {
         ALLURE_ENDPOINT = 'https://testing.qameta.in'
