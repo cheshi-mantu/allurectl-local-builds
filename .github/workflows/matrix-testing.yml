@@ -91,7 +91,7 @@ jobs:
           if [ "${{ matrix.THREADS }}" != "ONE" ]; then
             sleep 1
           fi
-          ./allurectl --log debug watch --validate-json -- pytest ${{ inputs.TESTS_TYPE || 'tests/poco' }} || true
+          ./allurectl --log debug watch --cooldown 60 -- pytest ${{ inputs.TESTS_TYPE || 'tests/poco' }} || true
         env:
           TESTS_SUCCESS: "${{ inputs.TESTS_SUCCESS || 'always' }}"
           ALLURE_RESULTS: "allure-results"
